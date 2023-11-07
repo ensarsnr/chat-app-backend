@@ -12,7 +12,8 @@ router.post("/add", (req, res) => {
       res.json(savedUser);
     })
     .catch((err) => {
-      res.status(500).json({ error: "Kullanıcı eklenemedi." });
+      res.status(500).json({ error: "Failed to add user." });
+      console.log(err);
     });
 });
 
@@ -22,7 +23,8 @@ router.get("/all", async (req, res) => {
     const users = await User.find({});
     res.json(users);
   } catch (err) {
-    res.status(500).json({ error: "Kullanıcılar getirilemedi." });
+    res.status(500).json({ error: "Failed to fetch users." });
+    console.log(err);
   }
 });
 
