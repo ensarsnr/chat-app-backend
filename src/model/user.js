@@ -13,6 +13,12 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
     },
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // "User" modeline referans verildi
+      },
+    ],
   },
   { timestamps: true }
 );
