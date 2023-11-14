@@ -1,7 +1,14 @@
 const mongoose = require("mongoose");
+const Conversation = require("./conversation");
 
 const UserSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+    },
+    surname: {
+      type: String,
+    },
     username: {
       type: String,
       min: 3,
@@ -13,10 +20,22 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
     },
+    pic: {
+      type: String,
+      required: true,
+      default:
+        "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
+    },
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // "User" modeline referans verildi
+        ref: "User",
+      },
+    ],
+    conversations: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Conversation",
       },
     ],
   },
