@@ -3,18 +3,27 @@ const router = express.Router();
 const User = require("../model/user");
 
 router.post("/add", (req, res) => {
-  const { username, email, password } = req.body;
-  const user = new User({ username, email, password });
+  try {
+    const { name, surname, username, email, password } = req.body;
+    const user = new User({ name, surname, username, email, password });
 
-  user
-    .save()
-    .then((savedUser) => {
-      res.json(savedUser);
-    })
-    .catch((err) => {
-      res.status(500).json({ error: "Failed to add user." });
-      console.log(err);
-    });
+    user
+      .save()
+      .then((savedUser) => {
+        res.json({
+          message: "Register successful!",
+          user: { username: savedUser.username },
+          userId: { userId: savedUser._id },
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({ error: "Failed to add user." });
+        console.log(err);
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "An unexpected error occurred." });
+  }
 });
 
 router.post("/login", async (req, res) => {
