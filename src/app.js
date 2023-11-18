@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
+const chatRouter = require("./routes/chat");
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -26,6 +27,7 @@ mongoose
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/chat", chatRouter);
 
 app.listen(port, () => {
   console.log(`Sunucu ${port} portunda çalışıyor`);
