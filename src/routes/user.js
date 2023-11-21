@@ -48,46 +48,56 @@ router.get("/all-friends/:userId", async (req, res) => {
 // Added friends endpoint
 // routes/user.js
 
+const getUserIdByUsername = async (username) => {
+  try {
+    const user = await User.findOne({ username });
+    return user ? user._id.toString() : null;
+  } catch (error) {
+    console.error("Error finding user by username:", error);
+    throw error;
+  }
+};
+
 router.post("/add-friends/:userId", async (req, res) => {
   const { userId } = req.params;
-  const { friendIds } = req.body;
+  const { username } = req.body;
 
   try {
+    const friendId = await getUserIdByUsername(username);
+
+    if (!friendId) {
+      return res.status(404).json({ error: "Friend not found." });
+    }
+
     const user = await User.findById(userId);
+
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Arkadaş listesine yeni arkadaşları ekle
-    const uniqueFriendIds = [...new Set(user.friends.concat(friendIds))];
-    user.friends = uniqueFriendIds;
-
-    // Her bir arkadaş için konuşma başlat ve konuşma ID'sini arkadaşın conversations listesine ekle
-    for (const friendId of friendIds) {
-      const existingConversation = await Conversation.findOne({
-        participants: { $all: [userId, friendId] },
-      });
-
-      if (!existingConversation) {
-        const newConversation = new Conversation({
-          participants: [userId, friendId],
-          messages: [],
-        });
-
-        await newConversation.save();
-
-        // Kullanıcının conversations listesine konuşma ID'sini ekle
-        user.conversations.push(newConversation._id);
-        await user.save();
-
-        // Arkadaşın conversations listesine konuşma ID'sini ekle
-        const friend = await User.findById(friendId);
-        friend.conversations.push(newConversation._id);
-        await friend.save();
-      }
+    if (!user.friends.includes(friendId)) {
+      user.friends.push(friendId);
+      await user.save();
     }
 
-    await user.save();
+    const existingConversation = await Conversation.findOne({
+      participants: { $all: [userId, friendId] },
+    });
+
+    if (!existingConversation) {
+      const newConversation = new Conversation({
+        participants: [userId, friendId],
+        messages: [],
+      });
+
+      await newConversation.save();
+
+      user.conversations.push(newConversation._id);
+      await user.save();
+      const friend = await User.findById(friendId);
+      friend.conversations.push(newConversation._id);
+      await friend.save();
+    }
 
     res.json(user);
   } catch (err) {
